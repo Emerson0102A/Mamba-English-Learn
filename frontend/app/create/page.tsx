@@ -8,6 +8,7 @@ export default function CreatePage() {
     const [result, setResult] = useState("");
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState("");
+    const [level, setLevel] = useState(2);
 
     async function generate(){
         setBusy(true);
@@ -15,7 +16,7 @@ export default function CreatePage() {
         setResult("");
 
         try {
-            const data = await generateWord(word);
+            const data = await generateWord(word, level);
             setResult(data.memory);
         } catch (error) {
             console.error(error);
@@ -38,6 +39,20 @@ export default function CreatePage() {
             />
 
             <p>You entered: {word}</p>
+
+            <label htmlFor="level">
+                Absurdity Level: {level}
+
+            </label>
+
+            <input
+              type="range"
+              id="level"
+              min="0"
+              max="4"
+              value={level}
+              onChange={(event) => setLevel(Number(event.target.value))}
+            />
 
             <button 
               onClick={generate}

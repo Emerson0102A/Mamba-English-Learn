@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react"; 
+import {generateWord} from "@/lib/api";
 
 export default function CreatePage() {
     const [word, setWord] = useState("");
@@ -14,24 +15,13 @@ export default function CreatePage() {
         setResult("");
 
         try {
-            const response = await fetch(
-                `http://localhost:8000/api/generate/${encodeURIComponent(word)}`,
-                {
-                    method: "POST",
-                }
-            );
-            if (!response.ok) {
-                throw new Error("The backend request failed.");
-            }
-
-            const data = await response.json();
+            const data = await generateWord(word);
             setResult(data.memory);
         } catch (error) {
-            if (error instanceof Error) {
-                setError(error.message);
-            } else {
-                setError("An unknown error occurred.");
-            }
+            console.error(error);
+            setError(
+                "Cannot connect to the backend. Please try again later."
+            );
         } finally {
             setBusy(false);
         }

@@ -5,10 +5,10 @@ export default function Home() {
     <main>
       <h1>Mamba English</h1>
       <p>Remember words you cannot unsee.</p>
-    
-      <Link href="/create">
-        Generate a word
-      </Link>
+
+      <Link href="/create">Generate a word</Link>
+
+      <Link href="/learn">Learn words</Link>
     </main>
   );
 }

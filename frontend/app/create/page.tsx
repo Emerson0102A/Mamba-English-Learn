@@ -1,68 +1,91 @@
 "use client";
 
-import { useState } from "react"; 
-import {generateWord} from "@/lib/api";
+import { useState } from "react";
+import { createWord, generateWord } from "@/lib/api";
 
 export default function CreatePage() {
-    const [word, setWord] = useState("");
-    const [result, setResult] = useState("");
-    const [busy, setBusy] = useState(false);
-    const [error, setError] = useState("");
-    const [level, setLevel] = useState(2);
+  const [word, setWord] = useState("");
+  const [result, setResult] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [level, setLevel] = useState(2);
+  const [meaning, setMeaning] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
 
-    async function generate(){
-        setBusy(true);
-        setError("");
-        setResult("");
+  async function generate() {
+    setBusy(true);
+    setError("");
+    setResult("");
 
-        try {
-            const data = await generateWord(word, level);
-            setResult(data.memory);
-        } catch (error) {
-            console.error(error);
-            setError(
-                "Cannot connect to the backend. Please try again later."
-            );
-        } finally {
-            setBusy(false);
-        }
+    try {
+      const data = await generateWord(word, level);
+      setResult(data.memory);
+    } catch (error) {
+      console.error(error);
+      setError("Cannot connect to the backend. Please try again later.");
+    } finally {
+      setBusy(false);
     }
-    return (
-        <main>
-            <h1>Create a memory</h1>
-            <p>Enter an English word.</p>
+  }
+  async function saveWord() {
+    setSaving(true);
+    setSaveMessage("");
+    setError("");
 
-            <input
-              value = {word}
-              onChange={(event) => setWord(event.target.value)}
-              placeholder="Enter a word"
-            />
+    try {
+      const saved = await createWord(word, meaning);
+      setSaveMessage(`Saved: ${saved.text} — ${saved.meaning}`);
+    } catch (error) {
+      console.error(error);
 
-            <p>You entered: {word}</p>
+      if (error instanceof Error) {
+        setError(error.message);
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
+  return (
+    <main>
+      <h1>Create a memory</h1>
+      <p>Enter an English word.</p>
 
-            <label htmlFor="level">
-                Absurdity Level: {level}
+      <input
+        value={word}
+        onChange={(event) => setWord(event.target.value)}
+        placeholder="Enter a word"
+      />
 
-            </label>
+      <p>You entered: {word}</p>
 
-            <input
-              type="range"
-              id="level"
-              min="0"
-              max="4"
-              value={level}
-              onChange={(event) => setLevel(Number(event.target.value))}
-            />
+      <label htmlFor="level">Absurdity Level: {level}</label>
 
-            <button 
-              onClick={generate}
-              disabled = {!word || busy}
-            >
-                {busy ? "Generating..." : "Generate"}
-            </button>
-            {result && <p>{result}</p>}
-            {error && <p>{error}</p>}
-        </main>
-    );
+      <input
+        type="range"
+        id="level"
+        min="0"
+        max="4"
+        value={level}
+        onChange={(event) => setLevel(Number(event.target.value))}
+      />
 
+      <input
+        value={meaning}
+        onChange={(event) => setMeaning(event.target.value)}
+        placeholder="Chinese meaning"
+      />
+
+      <button onClick={generate} disabled={!word || busy}>
+        {busy ? "Generating..." : "Generate"}
+      </button>
+
+      <button onClick={saveWord} disabled={!word || !meaning || saving}>
+        {saving ? "Saving..." : "Save word"}
+      </button>
+      {saveMessage && <p>{saveMessage}</p>}
+      {result && <p>{result}</p>}
+      {error && <p>{error}</p>}
+    </main>
+  );
 }
